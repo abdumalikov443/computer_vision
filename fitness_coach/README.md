@@ -42,7 +42,7 @@ switching to shoulder height fixed it (5/5).
 ```bash
 pip install -r requirements.txt
 python analyze.py my_video.mp4 --exercise squat --out outputs/   # annotated video, angle plot, JSON summary
-python app.py                                                     # Gradio demo on http://localhost:7860
+python app.py                                                     # Gradio demo on http://localhost:7860 (video, pose snapshots, chart, rep table)
 python -m pytest -q tests                                         # rep counter tests
 ```
 

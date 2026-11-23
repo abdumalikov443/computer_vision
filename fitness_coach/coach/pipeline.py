@@ -39,16 +39,47 @@ def _main_person(result):
     xy = result.keypoints.xy[i].cpu().numpy()
     conf = result.keypoints.conf
     conf = conf[i].cpu().numpy() if conf is not None else np.ones(len(xy))
-    return xy, conf
+    return xy, conf, boxes[i]
+
+
+def _crop_person(img, box, out_h=560):
+    """Crop around the person (with margin) so the skeleton is large in the snapshot."""
+    h, w = img.shape[:2]
+    x1, y1, x2, y2 = box
+    bw, bh = x2 - x1, y2 - y1
+    side = max(bw, bh) * 1.25
+    cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
+    half_w, half_h = side * 0.55, side / 2   # a bit wider than tall
+    X1, Y1 = int(max(0, cx - half_w)), int(max(0, cy - half_h))
+    X2, Y2 = int(min(w, cx + half_w)), int(min(h, cy + half_h))
+    crop = img[Y1:Y2, X1:X2]
+    if crop.size == 0:
+        crop = img
+    ch, cw = crop.shape[:2]
+    return cv2.resize(crop, (int(cw * out_h / ch), out_h), interpolation=cv2.INTER_AREA if ch > out_h else cv2.INTER_CUBIC)
+
+
+def _ffmpeg():
+    """ffmpeg from PATH, or the binary bundled with the imageio-ffmpeg package."""
+    exe = shutil.which("ffmpeg")
+    if exe:
+        return exe
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return None
 
 
 def _to_h264(src, dst):
     """Re-encode to H.264 so browsers (and Gradio) can play the file."""
-    if shutil.which("ffmpeg") is None:
+    exe = _ffmpeg()
+    if exe is None:
+        print("warning: ffmpeg not found (pip install imageio-ffmpeg); the video may not play in a browser")
         shutil.move(src, dst)
         return
     subprocess.run(
-        ["ffmpeg", "-y", "-loglevel", "error", "-i", src, "-c:v", "libx264", "-preset", "veryfast",
+        [exe, "-y", "-loglevel", "error", "-i", src, "-c:v", "libx264", "-preset", "veryfast",
          "-crf", "23", "-pix_fmt", "yuv420p", "-movflags", "+faststart", dst],
         check=True,
     )
@@ -75,7 +106,7 @@ def analyze_video(
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 0
     w, h = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    s = max(0.6, min(w, h) / 720)
+    s = max(0.7, min(w, h) / 560)
 
     tmp = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False).name
     writer = cv2.VideoWriter(tmp, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
@@ -86,6 +117,9 @@ def analyze_video(
     streak = {c.message: 0 for c in ex.checks}
     message, msg_good, msg_left = "", True, 0
     series = []  # (frame, raw angle, smoothed angle)
+    snapshots = []      # annotated frame at the lowest point of each rep
+    bottom_img = bottom_box = None
+    MAX_SNAPSHOTS = 8
     t0 = time.time()
     frame_i = 0
 
@@ -98,7 +132,7 @@ def analyze_video(
         raw = smooth = None
         side = "left"
         if person is not None:
-            xy, conf = person
+            xy, conf, box = person
             for sd in ("left", "right"):
                 side_conf[sd].update(float(np.mean([conf[p[sd]] for p in ex.side_points])))
             side = max(side_conf, key=lambda k: side_conf[k].value or 0)
@@ -132,6 +166,11 @@ def analyze_video(
                         live_issue = chk.message
 
             rep = counter.update(smooth, frame_i)
+            if rep is not None and bottom_img is not None and len(snapshots) < MAX_SNAPSHOTS:
+                snap = os.path.join(out_dir, f"{stem}_{ex.key}_rep{rep.index}.jpg")
+                cv2.imwrite(snap, _crop_person(bottom_img, bottom_box), [cv2.IMWRITE_JPEG_QUALITY, 90])
+                snapshots.append((snap, f"Rep {rep.index} · {'full' if rep.full else 'partial'} · lowest {rep.min_angle}{ex.unit}"))
+                bottom_img = None
             if rep is not None:
                 if rep.issues:
                     message, msg_good = rep.issues[0], False
@@ -154,6 +193,9 @@ def analyze_video(
         render.draw_hud(frame, ex.name, counter.count, counter.full_count, smooth, progress_val,
                         message if msg_left > 0 else "", msg_good, s)
         msg_left -= 1
+        if counter.in_rep and smooth is not None and counter.current_min is not None and smooth <= counter.current_min + 1e-6:
+            bottom_img = frame.copy()
+            bottom_box = box
         writer.write(frame)
         frame_i += 1
         if progress and total:
@@ -189,6 +231,7 @@ def analyze_video(
     with open(os.path.join(out_dir, f"{stem}_{ex.key}_summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
     summary["annotated_video"] = out_video
+    summary["snapshots"] = snapshots
     summary["angle_plot"] = plot_path
     return summary
 
