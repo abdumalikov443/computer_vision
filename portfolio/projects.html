@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Loyihalar</title>
+<meta name="description" content="Portfoliodagi barcha loyihalar mundarijasi">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="index.html">abdumalikov<span>.cv</span></a>
+  <nav><ul>
+    <li><a href="index.html">Bosh sahifa</a></li>
+    <li><a href="about.html">Men haqimda</a></li>
+    <li><a href="projects.html" aria-current="page">Loyihalar</a></li>
+  </ul></nav>
+</div></header>
+<main>
+<section class="hero"><div class="wrap">
+  <div class="eyebrow">Mundarija</div>
+  <h1>Loyihalar</h1>
+  <p class="lead">Portfolioda 6 ta loyiha bor. Har biriga qisqacha ta'rif — eng asosiysi, AI loyiha uchun alohida batafsil sahifa tayyorlangan.</p>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="toc">
+    <article class="proj featured">
+      <div class="num">01</div>
+      <div>
+        <h3>Menu Detector — taomlarni taniydigan AI <span class="badge">AI loyiha</span></h3>
+        <div class="meta">Deep Learning · PyTorch</div>
+        <p>MobileNetV2 asosida 6 ta taom klassini (palov, kabob, pizza, gamburger, hot-dog, desert) aniqlaydigan model. Transfer learning orqali 10 epochda <b>89.2%</b> validation aniqlikka erishildi.</p>
+        <ul class="tags"><li>pytorch</li><li>mobilenet_v2</li><li>transfer learning</li><li>CNN</li></ul>
+      </div>
+      <a class="go" href="projects/menu-detector.html">Batafsil →</a>
+    </article>
+
+    <article class="proj">
+      <div class="num">02</div>
+      <div>
+        <h3>Taom rasmlari datasetini yig'ish</h3>
+        <div class="meta">Data scraping · Data engineering</div>
+        <p>Food-101'da yo'q bo'lgan o'zbek taomlari (palov, kabob/shashlik) uchun Bing'dan avtomatik rasm yuklab olish va ularni Google Drive'dagi dataset tuzilmasiga joylash skripti.</p>
+        <ul class="tags"><li>bing-image-downloader</li><li>os / shutil</li><li>google drive</li></ul>
+      </div>
+      <a class="go" href="https://github.com/abdumalikov443/computer_vision/blob/main/data_scraping.ipynb">Notebook →</a>
+    </article>
+
+    <article class="proj">
+      <div class="num">03</div>
+      <div>
+        <h3>Real-time yuz aniqlash</h3>
+        <div class="meta">Computer Vision · OpenCV</div>
+        <p>Webcam yoki RTSP video oqimidan kadrlarni o'qib, Haar Cascade yordamida yuzlarni topadi va ularni ramkaga oladi. Qo'shimcha: Gaussian blur va Canny edge detection filtrlari.</p>
+        <ul class="tags"><li>opencv</li><li>haar cascade</li><li>VideoCapture</li><li>canny</li></ul>
+      </div>
+      <a class="go" href="https://github.com/abdumalikov443/computer_vision/blob/main/cv_opencv.ipynb">Notebook →</a>
+    </article>
+
+    <article class="proj">
+      <div class="num">04</div>
+      <div>
+        <h3>OpenCV: tasvirga ishlov berish asoslari</h3>
+        <div class="meta">Computer Vision · OpenCV</div>
+        <p>Rasm tuzilmasi (balandlik × kenglik × BGR kanallar), piksel qiymatlarini o'qish, grayscale, resize, crop, rotate va flip — data augmentation uchun zarur bo'lgan asosiy amallar.</p>
+        <ul class="tags"><li>opencv</li><li>numpy</li><li>preprocessing</li></ul>
+      </div>
+      <a class="go" href="https://github.com/abdumalikov443/computer_vision/blob/main/cv_opencv.ipynb">Notebook →</a>
+    </article>
+
+    <article class="proj">
+      <div class="num">05</div>
+      <div>
+        <h3>PyTorch: tensorlar va birinchi neyron tarmoq</h3>
+        <div class="meta">Deep Learning · PyTorch</div>
+        <p>0D–3D tensorlar, matritsa ko'paytirish, GPU/CPU qurilmasi. So'ng <code>nn.Linear</code> asosida linear regression modelini yozish va uni 1000 epoch davomida SGD bilan o'qitish.</p>
+        <ul class="tags"><li>torch</li><li>nn.Module</li><li>L1Loss</li><li>SGD</li></ul>
+      </div>
+      <a class="go" href="https://github.com/abdumalikov443/computer_vision/blob/main/pytorch.ipynb">Notebook →</a>
+    </article>
+
+    <article class="proj">
+      <div class="num">06</div>
+      <div>
+        <h3>Matplotlib bilan ma'lumotlarni vizualizatsiya qilish</h3>
+        <div class="meta">Data visualization</div>
+        <p>Line, bar, scatter, histogram va subplot grafiklari, stil va ranglar, grafikni faylga saqlash. Keyinchalik model natijalarini ko'rsatishda ishlatildi.</p>
+        <ul class="tags"><li>matplotlib</li><li>numpy</li></ul>
+      </div>
+      <a class="go" href="https://github.com/abdumalikov443/computer_vision/blob/main/matplotlib.ipynb">Notebook →</a>
+    </article>
+  </div>
+</div></section>
+</main>
+<footer><div class="wrap">
+  <span>© 2026 · Computer Vision portfolio</span>
+  <span><a href="https://github.com/abdumalikov443/computer_vision">GitHub</a> · <button class="theme-toggle" onclick="toggleTheme()" aria-label="Mavzuni almashtirish">◐ Mavzu</button></span>
+</div></footer>
+</body></html>
